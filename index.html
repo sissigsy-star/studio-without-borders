@@ -91,6 +91,13 @@ p{line-height:1.75}
 .teacher-avatar{width:58px;height:58px;border-radius:50%;background:var(--sage);display:grid;place-items:center;font:24px var(--serif);color:var(--green);margin-bottom:18px;overflow:hidden}
 .teacher-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .teacher-card p{font-size:13px;color:var(--muted);margin-bottom:0}
+.gallery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:42px}
+.gallery-item{background:white;border:1px solid var(--line);overflow:hidden}
+.gallery-item img{width:100%;aspect-ratio:4/3;object-fit:contain;background:#eef2ea;display:block}
+.gallery-item .card-body{padding:17px}
+.gallery-item h3{font-size:21px}
+.gallery-item p{font-size:13px;color:var(--muted);margin:0}
+.gallery-intro{max-width:690px;color:var(--muted)}
 .community-panel{background:#e8eee3;padding:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin-bottom:80px}
 .community-panel p{color:#58665d}
 .form-card{background:#fff;border:1px solid var(--line);padding:28px;max-width:760px;margin-bottom:80px}
@@ -118,12 +125,12 @@ footer small{color:#b9c6bc;font-size:11px}
  .nav-links.open{display:flex}.menu{display:block}.nav-cta{display:none}
  .hero{grid-template-columns:1fr;gap:35px;padding:58px 0}.hero-art{min-height:330px}
  .mission-inner,.content-two,.lesson-layout{grid-template-columns:1fr;gap:28px}
- .card-grid,.teacher-grid{grid-template-columns:repeat(2,1fr)}
+ .card-grid,.teacher-grid,.gallery-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:580px){
  .wrap{width:calc(100% - 32px)}.section{padding:55px 0}
  .section-head{display:block}.section-intro{margin-top:15px}
- .card-grid,.teacher-grid,.category-grid,.pillars,.form-grid,.community-panel{grid-template-columns:1fr}
+ .card-grid,.teacher-grid,.gallery-grid,.category-grid,.pillars,.form-grid,.community-panel{grid-template-columns:1fr}
  .footer-inner{align-items:flex-start;flex-direction:column}
  .community-panel{padding:25px}
  h1{font-size:50px}
@@ -139,6 +146,7 @@ footer small{color:#b9c6bc;font-size:11px}
    <a href="#lessons" data-page="lessons">Explore Lessons</a>
    <a href="#teachers" data-page="teachers">Our Teachers</a>
    <a href="#community" data-page="community">Our Community</a>
+    <a href="#gallery" data-page="gallery">Student Art Gallery</a>
    <a href="#discussions" data-page="discussions">Discussions</a>
    <a href="#requests" data-page="requests">Request a Lesson</a>
   </nav>
@@ -201,8 +209,7 @@ footer small{color:#b9c6bc;font-size:11px}
 <section class="page" id="page-teachers">
  <div class="wrap page-hero"><div class="eyebrow">The people who make it possible</div><h1>Made with <em>many hands.</em></h1><p>Our recorded lessons are made possible by generous teachers, artists, and student educators who share their knowledge. This page recognizes their contributions and gives every lesson creator the credit they deserve.</p></div>
  <div class="wrap teacher-grid" id="teacherGrid">
-  <article class="teacher-card"><div class="teacher-avatar"><img src="Sissi%27s%20photo.jpg" alt="Portrait of Sissi" loading="lazy"></div><div class="eyebrow">Visual Arts</div><h3>Sissi</h3><p>Lesson: Lines, Dots &amp; Shapes</p></article>
-  <article class="teacher-card"><div class="teacher-avatar">＋</div><div class="eyebrow">Visual Arts</div><h3>Teacher Name</h3><p>Lesson: Light & Shadow</p><p class="small-note">Add a short introduction or note of appreciation here.</p></article>
+  <article class="teacher-card"><div class="teacher-avatar"><img src="Sissi%27s%20photo.jpg" alt="Portrait of Sissi" loading="lazy"></div><div class="eyebrow">Visual Arts</div><h3>Sissi</h3><p>Lessons: Lines, Dots &amp; Shapes; Light &amp; Shadow</p></article>
   <article class="teacher-card"><div class="teacher-avatar">＋</div><div class="eyebrow">Contributors</div><h3>Our Contributors</h3><p>Educators, artists, and student collaborators.</p><p class="small-note">Add names and contributions as lessons are published.</p></article>
  </div>
 </section>
@@ -210,6 +217,24 @@ footer small{color:#b9c6bc;font-size:11px}
 <section class="page" id="page-community">
  <div class="wrap page-hero"><div class="eyebrow">Who this studio is for</div><h1>Learning has no <em>borders.</em></h1><p>Studio Without Borders is dedicated to young learners and communities who deserve access to creative education, regardless of their location, background, or available resources.</p></div>
  <div class="wrap community-panel"><div><div class="eyebrow">Our dedication</div><h2>For curious minds and creative beginnings.</h2></div><div><p>We hope to make arts education more approachable for children and young people, especially those with limited access to art classes and creative resources. Through free recorded lessons, we want to create opportunities to discover new interests, build confidence, and express ideas.</p><p>This is more than a collection of videos. It is a growing learning community shaped by educators, volunteers, learners, and everyone willing to share what they know.</p></div></div>
+</section>
+
+<section class="page" id="page-gallery">
+ <div class="wrap page-hero"><div class="eyebrow">Made by young artists</div><h1>Student <em>Art Gallery.</em></h1><p class="gallery-intro">Every artwork tells a story. Explore creative work made by students learning through Studio Without Borders. Every displayed piece is shared with permission.</p></div>
+ <div class="wrap"><div class="gallery-grid" id="galleryGrid"><p class="empty">Loading artwork…</p></div></div>
+ <div class="wrap form-card"><div class="eyebrow">Share your creativity</div><h2>Submit your artwork.</h2><p class="small-note">Created something after a lesson? You can submit it for consideration. Your artwork will only appear publicly after review and approval.</p>
+  <form id="artworkForm">
+   <div class="form-grid">
+    <div class="field"><label for="artNickname">Artist nickname (optional)</label><input id="artNickname" maxlength="40" placeholder="First name or nickname only"></div>
+    <div class="field"><label for="artLesson">Lesson</label><select id="artLesson" required><option value="">Choose a lesson</option><option>Lines, Dots &amp; Shapes</option><option>Light &amp; Shadow</option><option>Color Theory</option><option>Perspective</option><option>Other lesson</option></select></div>
+    <div class="field full"><label for="artTitle">Artwork title</label><input id="artTitle" maxlength="80" required placeholder="Give your artwork a title"></div>
+    <div class="field full"><label for="artFile">Upload artwork (JPG, PNG, or WebP; max 5 MB)</label><input id="artFile" type="file" accept="image/jpeg,image/png,image/webp" required></div>
+    <div class="field full"><label><input id="artPermission" type="checkbox" required style="width:auto;margin-right:8px">I created this artwork and have permission from my parent or guardian to submit it for possible public display.</label></div>
+   </div>
+   <div class="notice">Please upload only your artwork, not photographs of people or identifying details. Do not include your full name, school, address, or contact information. Submissions are reviewed before display. A parent or guardian should help younger children submit.</div>
+   <button class="button" type="submit">SUBMIT FOR REVIEW ↗</button><p id="artStatus" class="small-note" role="status" aria-live="polite"></p>
+  </form>
+ </div>
 </section>
 
 <section class="page" id="page-discussions">
@@ -349,7 +374,7 @@ function route(){
  const hash=location.hash.slice(1)||"home";
  if(hash.startsWith("lesson/")){const parts=hash.split("/");openLesson(parts[1],parts[2]);return}
  const page=hash.split("/")[0];
- showPage(["home","lessons","teachers","community","discussions","requests"].includes(page)?page:"home");
+ showPage(["home","lessons","teachers","community","gallery","discussions","requests"].includes(page)?page:"home");
 }
 document.addEventListener("click",e=>{
  const lesson=e.target.closest("[data-lesson]");
@@ -363,6 +388,42 @@ document.getElementById("menuButton").addEventListener("click",()=>{
 });
 window.addEventListener("hashchange",route);
 document.getElementById("year").textContent=new Date().getFullYear();
+
+// Gallery: images stay in a private submission bucket until an administrator approves them.
+async function loadGallery(){
+ const grid=document.getElementById("galleryGrid");if(!grid)return;
+ if(!db){grid.textContent="Gallery is not connected yet.";return}
+ const {data,error}=await db.from("artwork_submissions").select("title,nickname,lesson,public_path").eq("status","approved").order("created_at",{ascending:false}).limit(60);
+ grid.replaceChildren();if(error){grid.textContent="Gallery is temporarily unavailable.";return}
+ if(!data.length){grid.textContent="Our student gallery is growing. Be among the first to share your artwork!";return}
+ for(const art of data){if(!art.public_path)continue;
+  const card=document.createElement("article");card.className="gallery-item";
+  const img=document.createElement("img");img.loading="lazy";img.alt="Student artwork: "+art.title;
+  img.src=db.storage.from("student-gallery").getPublicUrl(art.public_path).data.publicUrl;
+  const body=document.createElement("div");body.className="card-body";
+  const h=document.createElement("h3");h.textContent=art.title;
+  const p=document.createElement("p");p.textContent="By "+(art.nickname||"Young artist")+" · "+art.lesson;
+  body.append(h,p);card.append(img,body);grid.append(card);
+ }
+}
+document.getElementById("artworkForm").addEventListener("submit",async e=>{
+ e.preventDefault();const status=document.getElementById("artStatus");
+ if(!db){status.textContent="Submissions are not connected yet.";return}
+ const file=document.getElementById("artFile").files[0];
+ const types={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
+ if(!file||!types[file.type]||file.size>5*1024*1024){status.textContent="Please choose a JPG, PNG, or WebP image under 5 MB.";return}
+ if(!document.getElementById("artPermission").checked){status.textContent="Permission is required.";return}
+ const btn=e.target.querySelector('button[type="submit"]');btn.disabled=true;status.textContent="Uploading artwork…";
+ const path=crypto.randomUUID()+"."+types[file.type];
+ try{
+  const uploaded=await db.storage.from("student-submissions").upload(path,file,{contentType:file.type,upsert:false});if(uploaded.error)throw uploaded.error;
+  const {error}=await db.from("artwork_submissions").insert({nickname:document.getElementById("artNickname").value.trim()||null,lesson:document.getElementById("artLesson").value,title:document.getElementById("artTitle").value.trim(),private_path:path});
+  if(error)throw error;
+  e.target.reset();status.textContent="Thank you! Your artwork has been submitted for review. It will not appear publicly unless approved.";
+ }catch(err){console.error("Artwork submission",err);status.textContent="Submission failed. Please try again later."}
+ finally{btn.disabled=false}
+});
+loadGallery();
 
 // All visitor submissions use Supabase; no personal browser storage.
 async function loadComments(){
