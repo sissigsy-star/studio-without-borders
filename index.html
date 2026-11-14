@@ -88,7 +88,8 @@ p{line-height:1.75}
 .side-note{color:var(--muted);font-size:14px;line-height:1.8}
 .teacher-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding-bottom:80px}
 .teacher-card{background:#fff;border:1px solid var(--line);padding:24px}
-.teacher-avatar{width:58px;height:58px;border-radius:50%;background:var(--sage);display:grid;place-items:center;font:24px var(--serif);color:var(--green);margin-bottom:18px}
+.teacher-avatar{width:58px;height:58px;border-radius:50%;background:var(--sage);display:grid;place-items:center;font:24px var(--serif);color:var(--green);margin-bottom:18px;overflow:hidden}
+.teacher-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .teacher-card p{font-size:13px;color:var(--muted);margin-bottom:0}
 .community-panel{background:#e8eee3;padding:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin-bottom:80px}
 .community-panel p{color:#58665d}
@@ -200,7 +201,7 @@ footer small{color:#b9c6bc;font-size:11px}
 <section class="page" id="page-teachers">
  <div class="wrap page-hero"><div class="eyebrow">The people who make it possible</div><h1>Made with <em>many hands.</em></h1><p>Our recorded lessons are made possible by generous teachers, artists, and student educators who share their knowledge. This page recognizes their contributions and gives every lesson creator the credit they deserve.</p></div>
  <div class="wrap teacher-grid" id="teacherGrid">
-  <article class="teacher-card"><div class="teacher-avatar">＋</div><div class="eyebrow">Visual Arts</div><h3>Teacher Name</h3><p>Lesson: Lines, Dots & Shapes</p><p class="small-note">Replace this sample with the educator's name, role, and lesson contribution.</p></article>
+  <article class="teacher-card"><div class="teacher-avatar"><img src="Sissi%27s%20photo.jpg" alt="Portrait of Sissi" loading="lazy"></div><div class="eyebrow">Visual Arts</div><h3>Sissi</h3><p>Lesson: Lines, Dots &amp; Shapes</p></article>
   <article class="teacher-card"><div class="teacher-avatar">＋</div><div class="eyebrow">Visual Arts</div><h3>Teacher Name</h3><p>Lesson: Light & Shadow</p><p class="small-note">Add a short introduction or note of appreciation here.</p></article>
   <article class="teacher-card"><div class="teacher-avatar">＋</div><div class="eyebrow">Contributors</div><h3>Our Contributors</h3><p>Educators, artists, and student collaborators.</p><p class="small-note">Add names and contributions as lessons are published.</p></article>
  </div>
