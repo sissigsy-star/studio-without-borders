@@ -223,7 +223,8 @@ footer small{color:#b9c6bc;font-size:11px}
    </div>
    <button class="button" type="submit">POST COMMENT ↗</button>
   </form>
-  <div class="notice">Prototype note: comments are currently saved only in this browser on this device. Before publishing publicly, connect a database and add moderation so comments can be shared safely across visitors.</div>
+  <div class="notice">Comments are shared publicly. Use a nickname, and please do not post personal information. Comments may require review before they appear.</div>
+  <p id="commentStatus" class="small-note" aria-live="polite"></p>
   <h3>Community comments</h3><div id="commentsList"><p class="empty">No comments yet. Be the first to share a reflection!</p></div>
  </div>
 </section>
@@ -234,15 +235,14 @@ footer small{color:#b9c6bc;font-size:11px}
   <h3>Suggest a lesson</h3>
   <form id="requestForm">
    <div class="form-grid">
-    <div class="field"><label for="requestName">Name (optional)</label><input id="requestName" maxlength="60" placeholder="Your name or nickname"></div>
-    <div class="field"><label for="requestEmail">Email (optional)</label><input id="requestEmail" type="email" placeholder="For a response, if needed"></div>
+    <div class="field"><label for="requestName">Name (optional)</label><input id="requestName" maxlength="40" placeholder="Your name or nickname"></div>
     <div class="field"><label for="requestCategory">Creative area</label><select id="requestCategory" required><option value="">Choose a category</option><option>Visual Arts</option><option>Theatre</option><option>Creative Writing</option><option>Dance</option><option>Other</option></select></div>
     <div class="field"><label for="requestTopic">Lesson topic</label><input id="requestTopic" required maxlength="100" placeholder="e.g. Drawing faces"></div>
     <div class="field full"><label for="requestDetails">What would you like the lesson to cover?</label><textarea id="requestDetails" required maxlength="1500" placeholder="Tell us what you'd like to learn or what you find challenging."></textarea></div>
    </div>
    <button class="button" type="submit">SUBMIT LESSON IDEA ↗</button>
   </form>
-  <div class="notice">Prototype note: this form currently saves requests in this browser only. To receive requests from visitors on a live website, connect it to a form service or database before launch.</div>
+  <div class="notice">Your suggestions go directly to the Studio Without Borders team. Please do not include personal information.</div>
   <p id="requestStatus" class="small-note" aria-live="polite"></p>
  </div>
 </section>
@@ -263,7 +263,16 @@ footer small{color:#b9c6bc;font-size:11px}
 
 <footer><div class="wrap footer-inner"><a class="brand" href="#home" data-page="home"><span class="brand-mark">S</span><span>STUDIO WITHOUT BORDERS</span></a><small>CREATE · EXPLORE · CONNECT</small><small>© <span id="year"></span> Studio Without Borders</small></div></footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// Use your Supabase Project URL and PUBLISHABLE (anon) key here.
+// Never paste a service-role/secret key or your account password.
+const SUPABASE_URL = "https://gurmvfijihazpdqzdmqm.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_LL86XUg9yswTm7IXPAA8BQ_eeGm45Vd";
+const isConfigured = SUPABASE_URL.startsWith("https://") && !SUPABASE_PUBLISHABLE_KEY.startsWith("PASTE_");
+const db = isConfigured && window.supabase
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  : null;
 const lessonData = {
  "visual-arts":[
   ["Lines, Dots & Shapes","Discover how lines, dots, and basic shapes form the building blocks of visual art.","Identify different types of lines and shapes; use basic elements to create an original composition.","Create an artwork using only dots, lines, and geometric shapes. Experiment with scale, repetition, and arrangement."],
@@ -354,33 +363,74 @@ document.getElementById("menuButton").addEventListener("click",()=>{
 window.addEventListener("hashchange",route);
 document.getElementById("year").textContent=new Date().getFullYear();
 
-function loadComments(){
- const comments=JSON.parse(localStorage.getItem("swb-comments")||"[]");
+// All visitor submissions use Supabase; no personal browser storage.
+async function loadComments(){
  const list=document.getElementById("commentsList");
- list.innerHTML="";
- if(!comments.length){list.innerHTML='<p class="empty">No comments yet. Be the first to share a reflection!</p>';return}
- comments.slice().reverse().forEach(c=>{
-  const el=document.createElement("div");el.className="comment";
-  const name=document.createElement("strong");name.textContent=c.name+" · "+c.lesson;
-  const body=document.createElement("p");body.textContent=c.text;
-  const date=document.createElement("p");date.className="small-note";date.textContent=c.date;
-  el.append(name,body,date);list.appendChild(el);
- });
+ list.textContent="Loading comments…";
+ if(!db){list.textContent="Community comments will be available once the site is connected.";return}
+ try{
+  const {data,error}=await db.from("comments").select("name,lesson,content,created_at").order("created_at",{ascending:false}).limit(100);
+  if(error)throw error;
+  list.replaceChildren();
+  if(!data.length){const p=document.createElement("p");p.className="empty";p.textContent="No comments yet. Be the first to share a reflection!";list.append(p);return}
+  data.forEach(c=>{
+   const el=document.createElement("div");el.className="comment";
+   const name=document.createElement("strong");name.textContent=c.name+" · "+c.lesson;
+   const body=document.createElement("p");body.textContent=c.content;
+   const date=document.createElement("p");date.className="small-note";date.textContent=new Date(c.created_at).toLocaleDateString();
+   el.append(name,body,date);list.append(el);
+  });
+ }catch(err){console.error("Comments:",err);list.textContent="Unable to load comments right now."}
 }
-document.getElementById("commentForm").addEventListener("submit",e=>{
+document.getElementById("commentForm").addEventListener("submit",async e=>{
  e.preventDefault();
- const comments=JSON.parse(localStorage.getItem("swb-comments")||"[]");
- comments.push({name:document.getElementById("commentName").value.trim(),lesson:document.getElementById("commentLesson").value,text:document.getElementById("commentText").value.trim(),date:new Date().toLocaleDateString()});
- localStorage.setItem("swb-comments",JSON.stringify(comments));e.target.reset();loadComments();
+ const status=document.getElementById("commentStatus");
+ if(!db){status.textContent="The site is not connected yet.";return}
+ const name=document.getElementById("commentName").value.trim();
+ const lesson=document.getElementById("commentLesson").value;
+ const content=document.getElementById("commentText").value.trim();
+ if(!name||!content)return;
+ const button=e.target.querySelector('button[type="submit"]');button.disabled=true;
+ status.textContent="Posting…";
+ try{
+  const {error}=await db.from("comments").insert([{name,lesson,content}]);
+  if(error)throw error;
+  e.target.reset();status.textContent="Thank you! Your comment was submitted.";
+  await loadComments();
+ }catch(err){console.error("Comment submission:",err);status.textContent="Could not submit your comment. Please try again."}
+ finally{button.disabled=false}
 });
-document.getElementById("requestForm").addEventListener("submit",e=>{
+document.getElementById("requestForm").addEventListener("submit",async e=>{
  e.preventDefault();
- const requests=JSON.parse(localStorage.getItem("swb-requests")||"[]");
- requests.push({name:document.getElementById("requestName").value.trim(),email:document.getElementById("requestEmail").value.trim(),category:document.getElementById("requestCategory").value,topic:document.getElementById("requestTopic").value.trim(),details:document.getElementById("requestDetails").value.trim(),date:new Date().toLocaleDateString()});
- localStorage.setItem("swb-requests",JSON.stringify(requests));e.target.reset();
- document.getElementById("requestStatus").textContent="Thank you! Your idea has been saved in this browser prototype.";
+ const status=document.getElementById("requestStatus");
+ if(!db){status.textContent="The site is not connected yet.";return}
+ const name=document.getElementById("requestName").value.trim()||null;
+ const category=document.getElementById("requestCategory").value;
+ const topic=document.getElementById("requestTopic").value.trim();
+ const details=document.getElementById("requestDetails").value.trim();
+ if(!category||!topic||!details)return;
+ const button=e.target.querySelector('button[type="submit"]');button.disabled=true;
+ status.textContent="Submitting…";
+ try{
+  const {error}=await db.from("lesson_requests").insert([{name,category,topic,details}]);
+  if(error)throw error;
+  e.target.reset();status.textContent="Thank you! Your lesson idea has been submitted.";
+ }catch(err){console.error("Lesson request:",err);status.textContent="Could not submit your idea. Please try again."}
+ finally{button.disabled=false}
 });
-loadComments();route();
+async function trackPageView(page){
+ if(!db)return;
+ try{const {error}=await db.from("page_views").insert([{page}]);if(error)throw error}
+ catch(err){console.error("Page view tracking:",err)}
+}
+// Record each page navigation (not individual visitors or personal data).
+let lastTrackedHash=null;
+function trackCurrentPage(){
+ const page=location.hash.slice(1)||"home";
+ if(page!==lastTrackedHash){lastTrackedHash=page;trackPageView(page.slice(0,100))}
+}
+window.addEventListener("hashchange",trackCurrentPage);
+loadComments();route();trackCurrentPage();
 </script>
 </body>
 </html>
