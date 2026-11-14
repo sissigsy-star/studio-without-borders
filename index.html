@@ -179,8 +179,8 @@ footer small{color:#b9c6bc;font-size:11px}
  <div class="wrap category-grid">
   <article class="category"><div class="category-top"><h3>Visual Arts</h3><span class="category-icon">🎨</span></div>
    <div class="lesson-row"><span class="lesson-no">01</span><a href="#lesson/visual-arts/0" data-lesson="visual-arts" data-index="0">Lines, Dots & Shapes</a><span class="arrow">↗</span></div>
-   <div class="lesson-row"><span class="lesson-no">02</span><a href="#lesson/visual-arts/1" data-lesson="visual-arts" data-index="1">Color Theory</a><span class="arrow">↗</span></div>
-   <div class="lesson-row"><span class="lesson-no">03</span><a href="#lesson/visual-arts/2" data-lesson="visual-arts" data-index="2">Light & Shadow</a><span class="arrow">↗</span></div>
+   <div class="lesson-row"><span class="lesson-no">02</span><a href="#lesson/visual-arts/1" data-lesson="visual-arts" data-index="1">Light & Shadow</a><span class="arrow">↗</span></div>
+   <div class="lesson-row"><span class="lesson-no">03</span><a href="#lesson/visual-arts/2" data-lesson="visual-arts" data-index="2">Color Theory</a><span class="arrow">↗</span></div>
    <div class="lesson-row"><span class="lesson-no">04</span><a href="#lesson/visual-arts/3" data-lesson="visual-arts" data-index="3">Perspective</a><span class="arrow">↗</span></div>
    <div class="lesson-row"><span class="lesson-no">05</span><a href="#lesson/visual-arts/4" data-lesson="visual-arts" data-index="4">Proportion & Form</a><span class="arrow">↗</span></div>
    <div class="lesson-row"><span class="lesson-no">06</span><a href="#lesson/visual-arts/5" data-lesson="visual-arts" data-index="5">Composition</a><span class="arrow">↗</span></div>
@@ -201,7 +201,7 @@ footer small{color:#b9c6bc;font-size:11px}
  <div class="wrap page-hero"><div class="eyebrow">The people who make it possible</div><h1>Made with <em>many hands.</em></h1><p>Our recorded lessons are made possible by generous teachers, artists, and student educators who share their knowledge. This page recognizes their contributions and gives every lesson creator the credit they deserve.</p></div>
  <div class="wrap teacher-grid" id="teacherGrid">
   <article class="teacher-card"><div class="teacher-avatar">＋</div><div class="eyebrow">Visual Arts</div><h3>Teacher Name</h3><p>Lesson: Lines, Dots & Shapes</p><p class="small-note">Replace this sample with the educator's name, role, and lesson contribution.</p></article>
-  <article class="teacher-card"><div class="teacher-avatar">＋</div><div class="eyebrow">Visual Arts</div><h3>Teacher Name</h3><p>Lesson: Color Theory</p><p class="small-note">Add a short introduction or note of appreciation here.</p></article>
+  <article class="teacher-card"><div class="teacher-avatar">＋</div><div class="eyebrow">Visual Arts</div><h3>Teacher Name</h3><p>Lesson: Light & Shadow</p><p class="small-note">Add a short introduction or note of appreciation here.</p></article>
   <article class="teacher-card"><div class="teacher-avatar">＋</div><div class="eyebrow">Contributors</div><h3>Our Contributors</h3><p>Educators, artists, and student collaborators.</p><p class="small-note">Add names and contributions as lessons are published.</p></article>
  </div>
 </section>
@@ -218,7 +218,7 @@ footer small{color:#b9c6bc;font-size:11px}
   <form id="commentForm">
    <div class="form-grid">
     <div class="field"><label for="commentName">Name or nickname</label><input id="commentName" maxlength="40" required placeholder="How should we call you?"></div>
-    <div class="field"><label for="commentLesson">Lesson</label><select id="commentLesson"><option>General discussion</option><option>Lines, Dots & Shapes</option><option>Color Theory</option><option>Light & Shadow</option><option>Perspective</option><option>Other lesson</option></select></div>
+    <div class="field"><label for="commentLesson">Lesson</label><select id="commentLesson"><option>General discussion</option><option>Lines, Dots & Shapes</option><option>Light & Shadow</option><option>Color Theory</option><option>Perspective</option><option>Other lesson</option></select></div>
     <div class="field full"><label for="commentText">Your comment</label><textarea id="commentText" maxlength="1000" required placeholder="What did you discover? What would you like to ask?"></textarea></div>
    </div>
    <button class="button" type="submit">POST COMMENT ↗</button>
@@ -267,8 +267,8 @@ footer small{color:#b9c6bc;font-size:11px}
 const lessonData = {
  "visual-arts":[
   ["Lines, Dots & Shapes","Discover how lines, dots, and basic shapes form the building blocks of visual art.","Identify different types of lines and shapes; use basic elements to create an original composition.","Create an artwork using only dots, lines, and geometric shapes. Experiment with scale, repetition, and arrangement."],
-  ["Color Theory","Explore how colors relate to one another and how artists use color to communicate ideas.","Identify primary, secondary, and complementary colors; recognize warm and cool color relationships.","Create a color wheel or a small composition that uses a deliberate color relationship."],
   ["Light & Shadow","Understand how light creates highlights, midtones, and shadows, giving objects a sense of form.","Identify the light source and observe how value changes across a three-dimensional form.","Draw a simple object and use a range of values to communicate light and shadow."],
+  ["Color Theory","Explore how colors relate to one another and how artists use color to communicate ideas.","Identify primary, secondary, and complementary colors; recognize warm and cool color relationships.","Create a color wheel or a small composition that uses a deliberate color relationship."],
   ["Perspective","Explore how artists create the illusion of depth and space on a flat surface.","Recognize the horizon line and vanishing point; use basic perspective in a drawing.","Draw a simple street or room using one-point perspective."],
   ["Proportion & Form","Build an understanding of how shapes relate in size and how simple forms create complex objects.","Observe relative size, structure, and the relationship between forms.","Break a still-life subject into simple forms before developing its details."],
   ["Composition","Learn how artists arrange visual elements to guide attention and create balance.","Identify balance, contrast, emphasis, and movement in an artwork.","Create two compositions using the same objects but different arrangements."],
@@ -298,7 +298,7 @@ const lessonData = {
 const categoryNames={"visual-arts":"Visual Arts","theatre":"Theatre","creative-writing":"Creative Writing","dance":"Dance"};
 // Add a YouTube URL to the matching lesson entry. Use a full watch URL, e.g. https://www.youtube.com/watch?v=VIDEO_ID
 const videoLinks = {
-  "visual-arts": ["https://www.youtube.com/watch?v=lEqZB35LZTI","","","","","","","","","","",""],
+  "visual-arts": ["https://www.youtube.com/watch?v=lEqZB35LZTI","https://youtu.be/j1rZxnGt9qY","","","","","","","","","",""],
   "theatre": ["","",""],
   "creative-writing": ["","",""],
   "dance": ["","",""]
