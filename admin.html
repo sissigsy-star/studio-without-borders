@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Studio Without Borders | Admin</title>
+<style>
+:root{--ink:#26332d;--green:#315746;--paper:#f7f7f1;--line:#dfe6dc;--muted:#68756d}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+main{max-width:1050px;margin:60px auto;padding:0 22px}h1,h2{font-family:Georgia,serif;font-weight:400}h1{font-size:44px}h2{font-size:27px}
+.card{background:white;border:1px solid var(--line);padding:25px;margin:18px 0}input{padding:12px;width:100%;max-width:380px;margin:6px 0 14px;border:1px solid #cdd9cb}
+label{display:block;font-size:13px}button{border:0;background:var(--green);color:white;padding:12px 20px;cursor:pointer;border-radius:4px}
+button:disabled{opacity:.5;cursor:wait}.secondary{background:#e3eae0;color:var(--ink)}.muted{color:var(--muted);font-size:13px;line-height:1.6}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.stat{padding:18px;background:#e6eee3}.stat strong{display:block;font-size:29px;margin-top:8px}
+.entry{padding:14px 0;border-top:1px solid var(--line);overflow-wrap:anywhere}.entry p{white-space:pre-wrap;margin:8px 0}.entry small{color:var(--muted)}
+#dashboard,#signOut{display:none}@media(max-width:650px){.stats{grid-template-columns:1fr}}
+</style></head><body><main>
+<p class="muted">Studio Without Borders · Private management page</p><h1>Admin dashboard</h1>
+<p class="muted">This page is intentionally not linked from the public website. Access is protected by Supabase authentication and database policies.</p>
+<p id="message" role="status" aria-live="polite"></p>
+<section class="card" id="login"><h2>Sign in</h2><form id="loginForm"><label for="email">Admin email</label><input id="email" type="email" autocomplete="username" required><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><div><button type="submit">Sign in</button></div></form></section>
+<button id="signOut" class="secondary">Sign out</button>
+<div id="dashboard"><div class="stats"><div class="stat">Page views<strong id="viewCount">—</strong></div><div class="stat">Comments<strong id="commentCount">—</strong></div><div class="stat">Lesson requests<strong id="requestCount">—</strong></div></div>
+<p class="muted">Page views count visits and page navigation events, not unique people. No visitor identity is collected. Counts reflect the rows accessible to this account.</p>
+<button id="refresh" class="secondary">Refresh dashboard</button>
+<section class="card"><h2>Page views by page</h2><div id="pageBreakdown"></div></section>
+<section class="card"><h2>Recent comments</h2><div id="adminComments"></div></section>
+<section class="card"><h2>Recent lesson requests</h2><div id="adminRequests"></div></section></div>
+</main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+// Paste the same Project URL and PUBLISHABLE key as in index.html.
+const SUPABASE_URL="https://gurmvfijihazpdqzdmqm.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_LL86XUg9yswTm7IXPAA8BQ_eeGm45Vd";
+const ADMIN_USER_ID="299fb965-e01b-47f8-9f01-9b6817f13a99";
+const configured=SUPABASE_URL.startsWith("https://")&&!SUPABASE_PUBLISHABLE_KEY.startsWith("PASTE_");
+const db=configured&&window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY):null;
+const $=id=>document.getElementById(id);
+function message(s){$("message").textContent=s}
+function entry(container,title,content,date){
+ const el=document.createElement("div");el.className="entry";
+ const b=document.createElement("strong");b.textContent=title;
+ const p=document.createElement("p");p.textContent=content;
+ const small=document.createElement("small");small.textContent=date?new Date(date).toLocaleString():"";
+ el.append(b,p,small);container.append(el);
+}
+async function refresh(){
+ if(!db)return;
+ message("Loading dashboard…");
+ try{
+  const [views,comments,requests,viewCount,commentCount,requestCount]=await Promise.all([
+   db.from("page_views").select("page,visited_at").order("visited_at",{ascending:false}).limit(1000),
+   db.from("comments").select("name,lesson,content,created_at").order("created_at",{ascending:false}).limit(100),
+   db.from("lesson_requests").select("name,category,topic,details,created_at").order("created_at",{ascending:false}).limit(100),
+   db.from("page_views").select("id",{count:"exact",head:true}),
+   db.from("comments").select("id",{count:"exact",head:true}),
+   db.from("lesson_requests").select("id",{count:"exact",head:true})
+  ]);
+  for(const r of [views,comments,requests,viewCount,commentCount,requestCount])if(r.error)throw r.error;
+  $("viewCount").textContent=viewCount.count??"—";$("commentCount").textContent=commentCount.count??"—";$("requestCount").textContent=requestCount.count??"—";
+  const byPage={};for(const v of views.data)byPage[v.page]=(byPage[v.page]||0)+1;
+  const breakdown=$("pageBreakdown");breakdown.replaceChildren();
+  if(!views.data.length)breakdown.textContent="No page views yet.";
+  else{const note=document.createElement("p");note.className="muted";note.textContent="Breakdown of up to 1,000 most recent page-view records:";breakdown.append(note);Object.entries(byPage).sort((a,b)=>b[1]-a[1]).forEach(([page,count])=>entry(breakdown,page,String(count)+" views",""))}
+  const c=$("adminComments");c.replaceChildren();if(!comments.data.length)c.textContent="No comments yet.";
+  comments.data.forEach(x=>entry(c,(x.name||"Anonymous")+" · "+x.lesson,x.content,x.created_at));
+  const r=$("adminRequests");r.replaceChildren();if(!requests.data.length)r.textContent="No lesson requests yet.";
+  requests.data.forEach(x=>entry(r,(x.topic||"Untitled")+" · "+x.category+(x.name?" · "+x.name:""),x.details,x.created_at));
+  message("Dashboard updated.");
+ }catch(e){console.error(e);message("Could not load dashboard. Check your Supabase policies and permissions.")}
+}
+async function updateAuth(){
+ if(!db){message("Add your Supabase Project URL and Publishable key to this file first.");return}
+ const {data:{user},error}=await db.auth.getUser();
+ if(error)console.error(error);
+ const allowed=user&&user.id===ADMIN_USER_ID;
+ $("login").style.display=allowed?"none":"block";
+ $("dashboard").style.display=allowed?"block":"none";
+ $("signOut").style.display=user?"inline-block":"none";
+ if(allowed)await refresh();
+ else if(user)message("This account does not have administrator access.");
+ else message("Sign in with your admin account.");
+}
+$("loginForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!db)return;
+ const button=e.target.querySelector("button");button.disabled=true;message("Signing in…");
+ try{const {error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error)throw error;$("password").value="";await updateAuth()}
+ catch(e){console.error(e);message("Sign-in failed. Check your email and password.")}
+ finally{button.disabled=false}
+});
+$("signOut").addEventListener("click",async()=>{if(db){await db.auth.signOut();await updateAuth()}});
+$("refresh").addEventListener("click",refresh);
+updateAuth();
+</script></body></html>
