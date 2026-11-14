@@ -22,7 +22,7 @@ button:disabled{opacity:.5;cursor:wait}.secondary{background:#e3eae0;color:var(-
 <button id="refresh" class="secondary">Refresh dashboard</button>
 <section class="card"><h2>Page views by page</h2><div id="pageBreakdown"></div></section>
 <section class="card"><h2>Recent comments</h2><div id="adminComments"></div></section>
-<section class="card"><h2>Recent lesson requests</h2><div id="adminRequests"></div></section></div>
+<section class="card"><h2>Recent lesson requests</h2><div id="adminRequests"></div></section><section class="card"><h2>Student artwork submissions</h2><p class="muted">Approve only suitable artwork with permission. Approval publishes a copy to the public gallery.</p><div id="adminArtwork"></div></section></div>
 </main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 // Paste the same Project URL and PUBLISHABLE key as in index.html.
 const SUPABASE_URL="https://gurmvfijihazpdqzdmqm.supabase.co";
@@ -61,8 +61,49 @@ async function refresh(){
   comments.data.forEach(x=>entry(c,(x.name||"Anonymous")+" · "+x.lesson,x.content,x.created_at));
   const r=$("adminRequests");r.replaceChildren();if(!requests.data.length)r.textContent="No lesson requests yet.";
   requests.data.forEach(x=>entry(r,(x.topic||"Untitled")+" · "+x.category+(x.name?" · "+x.name:""),x.details,x.created_at));
+  await loadArtworkAdmin();
   message("Dashboard updated.");
  }catch(e){console.error(e);message("Could not load dashboard. Check your Supabase policies and permissions.")}
+}
+async function loadArtworkAdmin(){
+ const box=$("adminArtwork");box.replaceChildren();
+ const {data,error}=await db.from("artwork_submissions").select("id,nickname,title,lesson,private_path,public_path,status,created_at").order("created_at",{ascending:false}).limit(100);
+ if(error){box.textContent="Could not load artwork. Check gallery SQL policies.";return}
+ if(!data.length){box.textContent="No artwork submissions yet.";return}
+ for(const art of data){
+  const div=document.createElement("div");div.className="entry";
+  const heading=document.createElement("strong");heading.textContent=art.title+" · "+(art.nickname||"Young artist")+" · "+art.lesson+" ("+art.status+")";
+  const img=document.createElement("img");img.style.cssText="display:block;max-width:260px;max-height:220px;object-fit:contain;margin:12px 0";
+  if(art.status==="approved"&&art.public_path){img.src=db.storage.from("student-gallery").getPublicUrl(art.public_path).data.publicUrl}
+  else {const signed=await db.storage.from("student-submissions").createSignedUrl(art.private_path,120);if(!signed.error)img.src=signed.data.signedUrl}
+  div.append(heading,img);
+  if(art.status==="pending"){
+   const approve=document.createElement("button");approve.textContent="Approve & publish";
+   approve.addEventListener("click",async()=>{
+    if(!confirm("Publish this artwork in the public gallery?"))return;
+    approve.disabled=true;
+    try{
+     const dl=await db.storage.from("student-submissions").download(art.private_path);if(dl.error)throw dl.error;
+     const up=await db.storage.from("student-gallery").upload(art.private_path,dl.data,{contentType:dl.data.type||"image/jpeg",upsert:false});if(up.error)throw up.error;
+     const updated=await db.from("artwork_submissions").update({status:"approved",public_path:art.private_path}).eq("id",art.id);if(updated.error)throw updated.error;
+     await loadArtworkAdmin();
+    }catch(e){console.error(e);message("Could not publish artwork. Check storage permissions.");approve.disabled=false}
+   });div.append(approve);
+  }
+  if(art.status!=="rejected"){
+   const reject=document.createElement("button");reject.className="secondary";reject.style.marginLeft="8px";reject.textContent=art.status==="approved"?"Remove from gallery":"Reject";
+   reject.addEventListener("click",async()=>{
+    if(!confirm("Remove or reject this artwork?"))return;
+    reject.disabled=true;
+    try{
+     if(art.public_path){const rem=await db.storage.from("student-gallery").remove([art.public_path]);if(rem.error)throw rem.error}
+     const result=await db.from("artwork_submissions").update({status:"rejected",public_path:null}).eq("id",art.id);if(result.error)throw result.error;
+     await loadArtworkAdmin();
+    }catch(e){console.error(e);message("Could not update artwork.");reject.disabled=false}
+   });div.append(reject);
+  }
+  box.append(div);
+ }
 }
 async function updateAuth(){
  if(!db){message("Add your Supabase Project URL and Publishable key to this file first.");return}
