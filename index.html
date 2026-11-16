@@ -23,6 +23,7 @@ header{height:76px;position:sticky;top:0;z-index:20;background:rgba(247,247,241,
 .nav{height:100%;display:flex;align-items:center;justify-content:space-between;gap:24px}
 .brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.075em;font-size:13px}
 .brand-mark{width:38px;height:38px;display:grid;place-items:center;background:var(--green);color:#fff;border-radius:50%;font:22px var(--serif);letter-spacing:0}
+.brand-logo{display:block;width:210px;max-width:100%;height:auto}
 .nav-links{display:flex;align-items:center;gap:24px;color:#4e5c53;font-size:13px}
 .nav-links a{padding:9px 0;border-bottom:2px solid transparent}
 .nav-links a:hover,.nav-links a.active{color:var(--green);border-color:#91a78e}
@@ -140,7 +141,7 @@ footer small{color:#b9c6bc;font-size:11px}
 <body>
 <header>
  <div class="wrap nav">
-  <a class="brand" href="#home" data-page="home"><span class="brand-mark">S</span><span>STUDIO WITHOUT BORDERS</span></a>
+  <a class="brand" href="#home" data-page="home"><img class="brand-logo" src="logo.png" alt="Studio Without Borders"></a>
   <nav class="nav-links" id="navLinks" aria-label="Main navigation">
    <a href="#home" data-page="home">Home</a>
    <a href="#lessons" data-page="lessons">Explore Lessons</a>
@@ -288,7 +289,7 @@ footer small{color:#b9c6bc;font-size:11px}
 </section>
 </main>
 
-<footer><div class="wrap footer-inner"><a class="brand" href="#home" data-page="home"><span class="brand-mark">S</span><span>STUDIO WITHOUT BORDERS</span></a><small>CREATE · EXPLORE · CONNECT</small><small>© <span id="year"></span> Studio Without Borders</small></div></footer>
+<footer><div class="wrap footer-inner"><a class="brand" href="#home" data-page="home"><img class="brand-logo" src="logo.png" alt="Studio Without Borders"></a><small>CREATE · EXPLORE · CONNECT</small><small>© <span id="year"></span> Studio Without Borders</small></div></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
