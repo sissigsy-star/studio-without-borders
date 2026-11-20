@@ -18,7 +18,7 @@ button:disabled{opacity:.5;cursor:wait}.secondary{background:#e3eae0;color:var(-
 <section class="card" id="login"><h2>Sign in</h2><form id="loginForm"><label for="email">Admin email</label><input id="email" type="email" autocomplete="username" required><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><div><button type="submit">Sign in</button></div></form></section>
 <button id="signOut" class="secondary">Sign out</button>
 <div id="dashboard"><div class="stats"><div class="stat">Page views<strong id="viewCount">—</strong></div><div class="stat">Comments<strong id="commentCount">—</strong></div><div class="stat">Lesson requests<strong id="requestCount">—</strong></div></div>
-<p class="muted">Page views count visits and page navigation events, not unique people. No visitor identity is collected. Counts reflect the rows accessible to this account.</p>
+<p class="muted">Page views count visits to the seven main website pages, including repeat visits, not unique people. Individual lesson pages and admin visits are excluded. Counts reflect the rows accessible to this account.</p>
 <button id="refresh" class="secondary">Refresh dashboard</button>
 <section class="card"><h2>Page views by page</h2><div id="pageBreakdown"></div></section>
 <section class="card"><h2>Recent comments</h2><div id="adminComments"></div></section>
@@ -39,15 +39,17 @@ function entry(container,title,content,date){
  const small=document.createElement("small");small.textContent=date?new Date(date).toLocaleString():"";
  el.append(b,p,small);container.append(el);
 }
+const MAIN_PAGES=["home","lessons","teachers","community","gallery","discussions","requests"];
+const PAGE_LABELS={home:"Home",lessons:"Explore Lessons",teachers:"Our Teachers",community:"Our Community",gallery:"Student Art Gallery",discussions:"Discussions",requests:"Request a Lesson"};
 async function refresh(){
  if(!db)return;
  message("Loading dashboard…");
  try{
   const [views,comments,requests,viewCount,commentCount,requestCount]=await Promise.all([
-   db.from("page_views").select("page,visited_at").order("visited_at",{ascending:false}).limit(1000),
+   db.from("page_views").select("page,visited_at").in("page",MAIN_PAGES).order("visited_at",{ascending:false}).limit(1000),
    db.from("comments").select("name,lesson,content,created_at").order("created_at",{ascending:false}).limit(100),
    db.from("lesson_requests").select("name,category,topic,details,created_at").order("created_at",{ascending:false}).limit(100),
-   db.from("page_views").select("id",{count:"exact",head:true}),
+   db.from("page_views").select("id",{count:"exact",head:true}).in("page",MAIN_PAGES),
    db.from("comments").select("id",{count:"exact",head:true}),
    db.from("lesson_requests").select("id",{count:"exact",head:true})
   ]);
@@ -55,8 +57,8 @@ async function refresh(){
   $("viewCount").textContent=viewCount.count??"—";$("commentCount").textContent=commentCount.count??"—";$("requestCount").textContent=requestCount.count??"—";
   const byPage={};for(const v of views.data)byPage[v.page]=(byPage[v.page]||0)+1;
   const breakdown=$("pageBreakdown");breakdown.replaceChildren();
-  if(!views.data.length)breakdown.textContent="No page views yet.";
-  else{const note=document.createElement("p");note.className="muted";note.textContent="Breakdown of up to 1,000 most recent page-view records:";breakdown.append(note);Object.entries(byPage).sort((a,b)=>b[1]-a[1]).forEach(([page,count])=>entry(breakdown,page,String(count)+" views",""))}
+  if(!views.data.length)breakdown.textContent="No main-page views yet.";
+  else{const note=document.createElement("p");note.className="muted";note.textContent="Breakdown of up to 1,000 most recent page-view records:";breakdown.append(note);Object.entries(byPage).sort((a,b)=>b[1]-a[1]).forEach(([page,count])=>entry(breakdown,PAGE_LABELS[page]||page,String(count)+" views",""))}
   const c=$("adminComments");c.replaceChildren();if(!comments.data.length)c.textContent="No comments yet.";
   comments.data.forEach(x=>entry(c,(x.name||"Anonymous")+" · "+x.lesson,x.content,x.created_at));
   const r=$("adminRequests");r.replaceChildren();if(!requests.data.length)r.textContent="No lesson requests yet.";
