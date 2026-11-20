@@ -490,7 +490,9 @@ async function trackPageView(page){
 let lastTrackedHash=null;
 function trackCurrentPage(){
  const page=location.hash.slice(1)||"home";
- if(page!==lastTrackedHash){lastTrackedHash=page;trackPageView(page.slice(0,100))}
+ const mainPages=new Set(["home","lessons","teachers","community","gallery","discussions","requests"]);
+ if(!mainPages.has(page))return;
+ if(page!==lastTrackedHash){lastTrackedHash=page;trackPageView(page)}
 }
 window.addEventListener("hashchange",trackCurrentPage);
 loadComments();route();trackCurrentPage();
